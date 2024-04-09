@@ -8,10 +8,21 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<BookstoreContext>(options =>
 {
-    options.UseSqlite(builder.Configuration["ConnectionStrings:Bookstore.sqlit"]);
+    options.UseSqlServer(builder.Configuration["ConnectionStrings:BookstoreConnection"]);
 });
 
 builder.Services.AddScoped<IBookStoreRepository, EFBookstoreRepository>();
+
+builder.Services.AddRazorPages(); //add razor pages 
+
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession();
+
+builder.Services.AddScoped<Cart>(sp => SessionCart.GetCart(sp));
+
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -23,12 +34,21 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
+
+app.UseSession();
 
 app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllerRoute("pagination", "Books/{pageNum}", new {Controller = "Home", action = "Index"});
+app.MapControllerRoute("pagenumandcateg", "{category}/{pageNum}", new { Controller = "Home", action = "Index"});
+app.MapControllerRoute("pagination", "{pageNum}", new { Controller = "Home", action = "Index", pageNum = 1 });
+app.MapControllerRoute("category", "{category}", new { Controller = "Home", action = "Index", pageNum = 1 });
+
 app.MapDefaultControllerRoute();
+
+app.MapRazorPages(); //map razor pages
+
 app.Run();

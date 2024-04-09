@@ -13,13 +13,14 @@ namespace Mission11.Controllers
             _repo = temp;
         }
 
-        public IActionResult Index(int pageNum)
+        public IActionResult Index(int pageNum, string category)
         {
             int pageSize = 10;
 
             var blah = new BookListViewModel
             {
                 Books = _repo.Books
+                    .Where(x => x.Category == category || category == null)
                     .OrderBy(x => x.Title)
                     .Skip((pageNum - 1) * pageSize)
                     .Take(pageSize),
@@ -28,8 +29,10 @@ namespace Mission11.Controllers
                 {
                     CurrentPage = pageNum,
                     ItemsPerPage = pageSize,
-                    TotalItems = _repo.Books.Count()
-                }
+                    TotalItems = category == null ? _repo.Books.Count() : _repo.Books.Where(x => x.Category == category).Count()
+                },
+
+                CurrentCategory = category 
             };
 
             return View(blah);

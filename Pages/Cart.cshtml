@@ -1,0 +1,47 @@
+﻿@page
+@model Mission11.Pages.CartModel
+@{
+}
+
+<h1>Cart</h1>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Quantity</th>
+            <th class="text-right">Amount</th>
+            <th class="text-right">SubTotal</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach(var line in Model.Cart?.Lines ?? Enumerable.Empty<Cart.CartLine>())
+        {
+            <tr>
+                <td class="text-left">@line.Book.Title</td>
+                <td class="text-center">@line.Quantity</td>
+                <td class="text-right">$@line.Book.Price</td>
+                <td class="text-right">@((line.Quantity * line.Book.Price).ToString("c"))</td>
+                <td class="text-center">
+                    <form asp-page-handler="Remove" method="post">
+                        <input type="hidden" name="BookId" value="@line.Book.BookId" />
+                        <input type="hidden" name="returnUrl" value="@Model?.ReturnUrl" />
+                        <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+
+    <tfoot>
+        <tr>
+            <td colspan="3" class="text-right">Total:</td>
+            <td class="text-right">@Model.Cart?.CalculateTotal().ToString("c")</td>
+        </tr>
+    </tfoot>
+</table>
+<div>
+    <a class="btn btn-primary align-self-center" href="@Model.ReturnUrl">Continue Shopping</a>
+</div>
